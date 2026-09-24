@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    EliNer is a pure engine module: no <application> tag, no activities, no
+    permissions declared here. Permissions the engine needs at runtime
+    (RECORD_AUDIO, Bluetooth/MIDI/USB features) are declared by whichever
+    app consumes this module — currently app/src/main/AndroidManifest.xml —
+    since permission handling is an application-level concern, not an
+    engine-level one.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" />
