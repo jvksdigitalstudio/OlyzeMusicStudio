@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- MIDI permissions -->
+    <!-- BLUETOOTH_CONNECT: genuinely used in production, not staged —
+         MainActivity requests it at runtime (API 31+) because
+         android.media.midi.MidiManager (AndroidMidiBackend's real,
+         live backend) needs it to surface already-paired Bluetooth MIDI
+         devices. No raw BluetoothAdapter/BluetoothLeScanner import is
+         needed for that: MidiManager does the Bluetooth MIDI device
+         enumeration itself once this permission is granted, for devices
+         the user already paired via system Bluetooth settings.
+         BLUETOOTH_SCAN: unlike BLUETOOTH_CONNECT above, this one really
+         does look unused for that same flow — MidiManager's Bluetooth
+         MIDI support only needs CONNECT (to talk to already-paired
+         devices), not SCAN (discovering new unpaired ones, which this
+         app doesn't do — pairing happens in system Bluetooth settings,
+         outside this app). Left in place rather than removed (in case a
+         future in-app "pair a new Bluetooth MIDI device" flow needs real
+         BLE scanning), but neverForLocation is set now: on API 31+,
+         BLUETOOTH_SCAN without this flag implicitly also needs
+         ACCESS_FINE_LOCATION granted at runtime (Play's policy assumes a
+         BLE scan could be used to derive physical location). This app's
+         scanning, whenever/if it's built, is only ever going to be "find
+         nearby MIDI controllers" — it will never derive location from
+         scan results — so asserting that now avoids a surprise
+         runtime-permission/Play-policy problem later, rather than
+         requiring every future caller to remember to add it. -->
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation" />
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
+    <uses-feature android:name="android.software.midi" android:required="false" />
+    <uses-feature android:name="android.hardware.usb.host" android:required="false" />
+
+    <!-- Audio -->
+    <!-- RECORD_AUDIO: hardening-pass note — declared but NOT currently
+         used anywhere. The native engine only opens an OUTPUT Oboe
+         stream (no setDirection() call = Oboe's default, Direction::
+         Output); nothing in the codebase calls AudioRecord or requests
+         this permission at runtime (required on API 23+, this app's
+         minSdk is 24). Left in place rather than removed — likely staged
+         ahead of a future audio-input feature (mic monitoring, input
+         recording) — but flagging it here so it isn't mistaken for
+         something already wired up. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.OlyzeMusicStudio"
+        android:hardwareAccelerated="true">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+    </application>
+
+</manifest>
